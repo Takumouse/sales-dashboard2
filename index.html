@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>売上ダッシュボード</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Chart.jsの読み込み -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <h1>売上ダッシュボード</h1>
+        <div class="header-controls">
+            <button id="theme-toggle" class="theme-toggle-btn">
+                <i class="fas fa-sun light-icon"></i>
+                <i class="fas fa-moon dark-icon"></i>
+            </button>
+        </div>
+    </header>
+    
+    <main>
+        <!-- フィルターセクション -->
+        <section id="filters">
+            <h2>フィルター</h2>
+            <div class="filter-container">
+                <div class="filter-item">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="search" placeholder="製品名または地域で検索...">
+                    </div>
+                </div>
+                
+                <div class="filter-item">
+                    <label for="startDate">開始日</label>
+                    <input type="date" id="startDate" placeholder="開始日を選択">
+                </div>
+                
+                <div class="filter-item">
+                    <label for="endDate">終了日</label>
+                    <input type="date" id="endDate" placeholder="終了日を選択">
+                </div>
+                
+                <div class="filter-item">
+                    <label for="category">カテゴリー</label>
+                    <select id="category">
+                        <option value="">すべて</option>
+                        <!-- カテゴリーはJSで動的に追加 -->
+                    </select>
+                </div>
+                
+                <div class="filter-item">
+                    <label for="status">ステータス</label>
+                    <select id="status">
+                        <option value="">全てのステータス</option>
+                        <option value="完了">完了</option>
+                        <option value="保留中">保留中</option>
+                        <option value="キャンセル">キャンセル</option>
+                    </select>
+                </div>
+                
+                <div class="filter-buttons">
+                    <button id="apply-filters" class="btn-apply">適用</button>
+                    <button id="reset-filters" class="btn-reset">リセット</button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- サマリーセクション -->
+        <section id="summary">
+            <h2>サマリー</h2>
+            <div class="summary-container">
+                <div class="summary-item">
+                    <h3>総売上</h3>
+                    <p id="total-sales">¥0</p>
+                    <span class="summary-subtitle">全期間の総売上金額</span>
+                </div>
+                <div class="summary-item">
+                    <h3>平均注文額</h3>
+                    <p id="avg-order">¥0</p>
+                    <span class="summary-subtitle">1注文あたりの平均金額</span>
+                </div>
+                <div class="summary-item">
+                    <h3>総販売数</h3>
+                    <p id="total-quantity">0</p>
+                    <span class="summary-subtitle">販売された総製品数</span>
+                </div>
+                <div class="summary-item">
+                    <h3>完了注文数</h3>
+                    <p id="completed-orders">0</p>
+                    <span class="summary-subtitle">完了した注文の総数</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- チャートセクション -->
+        <section id="charts">
+            <h2>チャート</h2>
+            
+            <div class="chart-tabs">
+                <button class="chart-tab active" data-chart-type="category">カテゴリー別</button>
+                <button class="chart-tab" data-chart-type="region">地域別</button>
+                <button class="chart-tab" data-chart-type="trend">トレンド</button>
+            </div>
+            
+            <div class="charts-container">
+                <!-- カテゴリー別と地域別の場合は2つのグラフを表示 -->
+                <div class="dual-chart-container" id="dual-charts">
+                    <div class="chart-wrapper">
+                        <div class="chart-title">カテゴリー別売上（円グラフ）</div>
+                        <canvas id="pie-chart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <div class="chart-title">カテゴリー別売上（棒グラフ）</div>
+                        <canvas id="bar-chart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- トレンドの場合は1つの線グラフを表示 -->
+                <div class="single-chart-container hidden" id="trend-chart">
+                    <div class="chart-title">日別売上トレンド</div>
+                    <canvas id="line-chart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 売上データテーブル -->
+        <section id="sales-data">
+            <h2>売上データ</h2>
+            <table id="sales-table">
+                <thead>
+                    <tr>
+                        <th data-sort="id">ID <span class="sort-icon">↓</span></th>
+                        <th data-sort="date">日付 <span class="sort-icon"></span></th>
+                        <th data-sort="product">製品 <span class="sort-icon"></span></th>
+                        <th data-sort="category">カテゴリー <span class="sort-icon"></span></th>
+                        <th data-sort="region">地域 <span class="sort-icon"></span></th>
+                        <th data-sort="amount">金額 <span class="sort-icon"></span></th>
+                        <th data-sort="quantity">数量 <span class="sort-icon"></span></th>
+                        <th data-sort="status">ステータス <span class="sort-icon"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- データはJSで動的に追加 -->
+                </tbody>
+            </table>
+            
+            <div class="pagination">
+                <button id="prev-page">前へ</button>
+                <span id="page-info">1 / 1</span>
+                <button id="next-page">次へ</button>
+            </div>
+        </section>
+    </main>
+    
+    <script src="js/main.js"></script>
+</body>
+</html>
